@@ -1,0 +1,52 @@
+variables:
+  NAME: $CI_PROJECT_NAME
+  PLUGIN: $NAME.php
+  FILENAME: $NAME.zip
+  ARCHIVE: $NAME-$CI_COMMIT_SHORT_SHA.zip
+  PROD_USER: gitlab-runner
+  PROD_HOST: 188.245.42.73
+  PROD_PORT: 22
+  PROD_ROOT: repository.purin.at
+  PUB_ROOT: purin.at
+  PUBLIC: 0
+
+stages:
+  - release
+
+before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -p 22 188.245.42.73 >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+
+release-job:
+  stage: release
+
+  only:
+    refs:
+      - /^main$/
+
+  script:
+    - rsync --remove-source-files --exclude='.git/' --exclude='sonar-project.properties' -av ./ $NAME
+    - zip -r $FILENAME ./$NAME -x \*.git\* \*.yml \*.properties
+    - scp -P $PROD_PORT ${FILENAME} $PROD_USER@$PROD_HOST:htdocs/$PROD_ROOT/packages/${FILENAME}
+    - ssh $PROD_USER@$PROD_HOST -p $PROD_PORT "cd htdocs/$PROD_ROOT/archive/; mkdir -p $NAME" 
+    - scp -P $PROD_PORT ${FILENAME} $PROD_USER@$PROD_HOST:htdocs/$PROD_ROOT/archive/$NAME/$ARCHIVE
+    - rm $FILENAME
+    - rm -r $NAME
+    - ls -l
+
+#Überprüfe ob die ZIP Datei verfügbar ist und eine größe aufweist über die Update API
+validate-job:
+  stage: release
+
+  only:
+    refs:
+      - /^main$/
+  
+  script:
+    - response=$(curl -Is https://repository.purin.at?action=get_metadata&slug=${NAME} | head -n 1 | tr -d '\r')
+    - if [[ "$response" = "HTTP/1.1 200 OK" ]]; then echo "Plugin avialable"; exit 0; fi;

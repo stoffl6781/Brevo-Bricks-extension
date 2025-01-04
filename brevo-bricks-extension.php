@@ -7,6 +7,20 @@
     Author URI: www.purin.at
 */
 
+/**
+ * Initialize plugin update checker to check for updates 
+ * from the plugin's repository.
+ */
+require 'update/plugin-update-checker.php';
+
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$MyUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://repository.purin.at?action=get_metadata&slug=brevo-bricks-extension',
+    __FILE__,
+    'brevo-bricks-extension'
+);
+
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 use Brevo\Client\Configuration;
