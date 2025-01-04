@@ -1,0 +1,5 @@
+{
+    "require": {
+        "getbrevo/brevo-php": "^2.0.0"
+    }
+}
