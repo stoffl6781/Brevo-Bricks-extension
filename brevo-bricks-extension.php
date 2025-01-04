@@ -2,7 +2,7 @@
 /*
     Plugin Name: Brevo - Bricks extension
     Plugin URI: purin.at
-    Version: 1.0.0
+    Version: 1.0.1
     Author: Christoph Purin
     Author URI: www.purin.at
 */
@@ -111,13 +111,13 @@ add_filter( 'bricks/form/custom_action', function( $form ) {
 
 // Füge eine neue Admin-Seite hinzu
 function bbe_brevo_settings_page() {
-    add_menu_page(
+    add_submenu_page(
+        'options-general.php',
         'Bricks Brevo Einstellungen',
-        'Bricks Brevo Einstellungen', 
+        'Bricks Brevo',
         'manage_options',
         'brevo-settings',
-        'bbe_brevo_settings_page_content',
-        'dashicons-admin-generic'
+        'bbe_brevo_settings_page_content'
     );
 }
 add_action('admin_menu', 'bbe_brevo_settings_page');
