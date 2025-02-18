@@ -5,7 +5,7 @@ on:
       branches:
         -main
         
-  release:
+  #release:
     #types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
 
 jobs:
