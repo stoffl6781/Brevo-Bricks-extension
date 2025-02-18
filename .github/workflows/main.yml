@@ -1,0 +1,39 @@
+name: Build and Deploy Plugin
+
+on:
+  release:
+    types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set ZIP Filename from Repository Name
+        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
+
+      - name: Build ZIP Archive
+        run: |
+          zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*" -x ".yaml/*"
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Upload ZIP to Server via SCP
+        run: |
+          scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+
+      - name: Upload ZIP to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.PLUGIN_NAME }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Deployment Success
+        run: echo "Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
