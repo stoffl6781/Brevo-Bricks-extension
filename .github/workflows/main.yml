@@ -17,7 +17,7 @@ jobs:
 
       - name: Build ZIP Archive
         run: |
-          zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*" -x ".yaml/*"
+          zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*" -x ".yml/*"
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.5.3
