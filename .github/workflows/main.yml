@@ -27,11 +27,6 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add private_key
 
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       - name: Upload ZIP to Server via SCP
         run: |
           scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
