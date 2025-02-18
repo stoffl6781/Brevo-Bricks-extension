@@ -2,11 +2,10 @@ name: Build and Deploy Plugin
 
 on:
   push:
-      branches:
-        -main
-        
-  #release:
-    #types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
+    branches:
+      - main  # Wird ausgelöst, wenn Änderungen auf "main" gepusht werden
+  release:
+    types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
 
 jobs:
   deploy:
@@ -23,20 +22,10 @@ jobs:
       - name: Build ZIP Archive
         run: |
           zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*"
-      
-      - name: Debug SSH Key
-        run: |
-          if [[ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]]; then
-            echo "SSH_PRIVATE_KEY ist leer oder nicht gesetzt!"
-            exit 1
-          else
-            echo "SH_PRIVATE_KEY ist vorhanden!"
-          fi
-
 
       - name: Manually Add SSH Key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > private_key
           chmod 600 private_key
           eval "$(ssh-agent -s)"
           ssh-add private_key
@@ -46,6 +35,7 @@ jobs:
           scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
 
       - name: Upload ZIP to GitHub Release
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.PLUGIN_NAME }}.zip
