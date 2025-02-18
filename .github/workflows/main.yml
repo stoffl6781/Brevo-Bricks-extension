@@ -19,6 +19,16 @@ jobs:
       - name: Build ZIP Archive
         run: |
           zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*"
+      
+      - name: Debug SSH Key
+        run: |
+          if [[ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]]; then
+            echo "SSH_PRIVATE_KEY ist leer oder nicht gesetzt!"
+            exit 1
+          else
+            echo "SH_PRIVATE_KEY ist vorhanden!"
+          fi
+
 
       - name: Manually Add SSH Key
         run: |
