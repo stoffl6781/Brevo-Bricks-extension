@@ -1,8 +1,12 @@
 name: Build and Deploy Plugin
 
 on:
+  push:
+      branches:
+        -main
+        
   release:
-    types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
+    #types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
 
 jobs:
   deploy:
