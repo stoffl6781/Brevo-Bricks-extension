@@ -20,6 +20,13 @@ jobs:
         run: |
           zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*"
 
+      - name: Manually Add SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+          chmod 600 private_key
+          eval "$(ssh-agent -s)"
+          ssh-add private_key
+
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
