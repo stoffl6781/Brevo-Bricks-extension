@@ -3,7 +3,7 @@ name: Build and Deploy Plugin
 on:
   push:
     branches:
-      - main
+      - main  # Wird ausgelöst, wenn auf main gepusht wird
 
 jobs:
   deploy:
@@ -14,8 +14,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setze ZIP-Dateinamen basierend auf Repository-Namen
-        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
+      - name: Setze ZIP-Dateinamen basierend auf Repository-Namen (kleingeschrieben)
+        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build ZIP Archive
         run: |
@@ -33,4 +33,4 @@ jobs:
           sshpass -p "${{ secrets.SSH_PASS }}" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
 
       - name: Notify Deployment Success
-        run: echo "Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
+        run: echo "✅ Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
