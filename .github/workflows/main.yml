@@ -44,7 +44,11 @@ jobs:
 
       - name: Build ZIP Archive
         run: |
-          zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*"
+          mkdir -p build
+          rsync -av --progress ./ build/ --exclude .git --exclude .github
+          cd build
+          zip -r ../${{ env.PLUGIN_NAME }}.zip .
+          cd ..
 
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
@@ -57,7 +61,7 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.PLUGIN_TAG }}  # Automatisch aus readme.txt extrahiert
+          tag_name: ${{ env.PLUGIN_TAG }} 
           files: ${{ env.PLUGIN_NAME }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
