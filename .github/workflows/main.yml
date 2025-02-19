@@ -30,7 +30,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
-          
+
+          # Stellt sicher, dass alle Tags von remote verfügbar sind
+          git fetch --tags
+
           if [ -z "$(git tag -l "$PLUGIN_TAG")" ]; then
             git tag "$PLUGIN_TAG"
             git push origin "$PLUGIN_TAG"
@@ -38,7 +41,6 @@ jobs:
           else
             echo "Git-Tag $PLUGIN_TAG existiert bereits."
           fi
-
 
       - name: Build ZIP Archive
         run: |
