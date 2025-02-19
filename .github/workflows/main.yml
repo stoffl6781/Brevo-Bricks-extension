@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-  release:
-    types: [published]
 
 jobs:
   deploy:
@@ -16,40 +14,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Extrahiere den Stable-Tag aus readme.txt
-        id: extract_tag
-        run: |
-          TAG=$(grep -i "^Stable tag:" readme.txt | awk '{print $3}')
-          echo "Stable Tag gefunden: $TAG"
-          echo "PLUGIN_TAG=$TAG" >> $GITHUB_ENV
-
-      - name: Setze und pushe Git-Tag (falls nicht vorhanden)
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          git config --global user.name "Christoph Purin"
-          git config --global user.email "christoph@purin.at"
-
-          # Stelle sicher, dass der alte Remote entfernt wird
-          git remote remove origin || echo "Kein origin zum Entfernen gefunden."
-
-          # Setze den Remote mit GH_PAT neu
-          git remote add origin https://${GH_PAT}@github.com/${{ github.repository }}.git
-
-          # Prüfe, ob der Token wirklich funktioniert
-          git ls-remote origin || (echo "❌ Fehler: GH_PAT hat keine Berechtigungen!" && exit 1)
-
-          # Stelle sicher, dass alle Tags verfügbar sind
-          git fetch --tags
-
-          if [ -z "$(git tag -l "$PLUGIN_TAG")" ]; then
-            git tag "$PLUGIN_TAG"
-            git push origin "$PLUGIN_TAG"
-            echo "✅ Neues Git-Tag $PLUGIN_TAG erstellt und gepusht."
-          else
-            echo "ℹ️ Git-Tag $PLUGIN_TAG existiert bereits."
-          fi
-
+      - name: Setze ZIP-Dateinamen basierend auf Repository-Namen
+        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
 
       - name: Build ZIP Archive
         run: |
@@ -65,15 +31,6 @@ jobs:
       - name: Upload ZIP to Server via SCP
         run: |
           sshpass -p "${{ secrets.SSH_PASS }}" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
-
-      - name: Upload ZIP to GitHub Release
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.PLUGIN_TAG }} 
-          files: ${{ env.PLUGIN_NAME }}.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Deployment Success
         run: echo "Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
