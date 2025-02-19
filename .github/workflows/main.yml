@@ -10,7 +10,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: updateserver
 
     steps:
       - name: Checkout Repository
@@ -23,19 +22,18 @@ jobs:
         run: |
           zip -r $PLUGIN_NAME.zip . -x ".*" -x "__MACOSX" -x ".git/*" -x ".github/*"
 
-      - name: Manually Add SSH Key
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > private_key
-          chmod 600 private_key
-          eval "$(ssh-agent -s)"
-          ssh-add private_key
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
 
-      - name: Upload ZIP to Server via SCP
+      - name: Upload ZIP to Server via SCP (mit Passwort)
         run: |
-          scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+          sshpass -p "${{ secrets.SSH_PASS }}" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+
+      - name: Test SSH Connection (optional)
+        run: |
+          sshpass -p "${{ secrets.SSH_PASS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo SSH-Verbindung erfolgreich"
 
       - name: Upload ZIP to GitHub Release
-        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.PLUGIN_NAME }}.zip
