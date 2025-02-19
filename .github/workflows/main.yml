@@ -27,11 +27,13 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "Christoph Purin"
+          git config --global user.email "christoph@purin.at"
+
+          # Ersetze den Standard-Token durch den GH_PAT mit Schreibrechten
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
 
-          # Stellt sicher, dass alle Tags von remote verfügbar sind
+          # Stelle sicher, dass alle Tags von remote verfügbar sind
           git fetch --tags
 
           if [ -z "$(git tag -l "$PLUGIN_TAG")" ]; then
@@ -41,6 +43,7 @@ jobs:
           else
             echo "Git-Tag $PLUGIN_TAG existiert bereits."
           fi
+
 
       - name: Build ZIP Archive
         run: |
