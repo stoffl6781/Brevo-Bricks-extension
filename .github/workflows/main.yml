@@ -17,6 +17,18 @@ jobs:
 
       - name: Set ZIP Filename from Repository Name
         run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
+        
+      - name: Debug SSH Secrets
+        run: |
+          echo "SSH_USER: ${{ secrets.SSH_USER }}"
+          echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
+          if [[ -z "${{ secrets.SSH_PASS }}" ]]; then
+            echo "SSH_PASS ist leer oder nicht gesetzt!"
+            exit 1
+          else
+            echo "SSH_PASS ist gesetzt!"
+          fi
+
 
       - name: Build ZIP Archive
         run: |
