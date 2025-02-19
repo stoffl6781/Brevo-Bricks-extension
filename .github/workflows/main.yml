@@ -30,12 +30,14 @@ jobs:
           git config --global user.name "Christoph Purin"
           git config --global user.email "christoph@purin.at"
 
-          # Entferne den alten Remote und setze ihn neu mit GH_PAT
-          git remote remove origin
-          git remote add origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+          # Stelle sicher, dass der alte Remote entfernt wird
+          git remote remove origin || echo "Kein origin zum Entfernen gefunden."
+
+          # Setze den Remote mit GH_PAT neu
+          git remote add origin https://${GH_PAT}@github.com/${{ github.repository }}.git
 
           # Prüfe, ob der Token wirklich funktioniert
-          git ls-remote origin || (echo "Fehler: GH_PAT hat keine Berechtigungen!" && exit 1)
+          git ls-remote origin || (echo "❌ Fehler: GH_PAT hat keine Berechtigungen!" && exit 1)
 
           # Stelle sicher, dass alle Tags verfügbar sind
           git fetch --tags
@@ -43,9 +45,9 @@ jobs:
           if [ -z "$(git tag -l "$PLUGIN_TAG")" ]; then
             git tag "$PLUGIN_TAG"
             git push origin "$PLUGIN_TAG"
-            echo "Neues Git-Tag $PLUGIN_TAG erstellt und gepusht."
+            echo "✅ Neues Git-Tag $PLUGIN_TAG erstellt und gepusht."
           else
-            echo "Git-Tag $PLUGIN_TAG existiert bereits."
+            echo "ℹ️ Git-Tag $PLUGIN_TAG existiert bereits."
           fi
 
 
