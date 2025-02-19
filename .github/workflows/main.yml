@@ -24,7 +24,13 @@ jobs:
           echo "PLUGIN_TAG=$TAG" >> $GITHUB_ENV
 
       - name: Setze und pushe Git-Tag (falls nicht vorhanden)
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git
+          
           if [ -z "$(git tag -l "$PLUGIN_TAG")" ]; then
             git tag "$PLUGIN_TAG"
             git push origin "$PLUGIN_TAG"
@@ -32,6 +38,7 @@ jobs:
           else
             echo "Git-Tag $PLUGIN_TAG existiert bereits."
           fi
+
 
       - name: Build ZIP Archive
         run: |
