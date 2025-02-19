@@ -17,6 +17,9 @@ jobs:
       - name: Setze ZIP-Dateinamen basierend auf Repository-Namen (kleingeschrieben)
         run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
+      - name: Entferne alte ZIP-Datei (falls vorhanden)
+        run: rm -f ${{ env.PLUGIN_NAME }}.zip
+
       - name: Build ZIP Archive
         run: |
           mkdir -p build
@@ -28,7 +31,7 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
 
-      - name: Upload ZIP to Server via SCP
+      - name: Upload ZIP to Server via SCP (überschreibt vorhandene Datei)
         run: |
           sshpass -p "${{ secrets.SSH_PASS }}" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
 
