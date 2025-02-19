@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: updateserver 
 
     steps:
       - name: Checkout Repository
@@ -18,7 +19,7 @@ jobs:
       - name: Set ZIP Filename from Repository Name
         run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
         
-      - name: Debug SSH Secrets
+      - name: Debug environment Secrets
         run: |
           echo "SSH_USER: ${{ secrets.SSH_USER }}"
           echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
