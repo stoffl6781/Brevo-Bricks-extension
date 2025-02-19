@@ -3,33 +3,35 @@ name: Build and Deploy Plugin
 on:
   push:
     branches:
-      - main  # Wird ausgelöst, wenn Änderungen auf "main" gepusht werden
+      - main
   release:
-    types: [published]  # Wird ausgelöst, wenn ein neues Release veröffentlicht wird
+    types: [published]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: updateserver 
+    environment: updateserver
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set ZIP Filename from Repository Name
-        run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY)" >> $GITHUB_ENV
-        
-      - name: Debug environment Secrets
+      - name: Extrahiere den Stable-Tag aus readme.txt
+        id: extract_tag
         run: |
-          echo "SSH_USER: ${{ secrets.SSH_USER }}"
-          echo "SSH_HOST: ${{ secrets.SSH_HOST }}"
-          if [[ -z "${{ secrets.SSH_PASS }}" ]]; then
-            echo "SSH_PASS ist leer oder nicht gesetzt!"
-            exit 1
-          else
-            echo "SSH_PASS ist gesetzt!"
-          fi
+          TAG=$(grep -i "^Stable tag:" readme.txt | awk '{print $3}')
+          echo "Stable Tag gefunden: $TAG"
+          echo "PLUGIN_TAG=$TAG" >> $GITHUB_ENV
 
+      - name: Setze und pushe Git-Tag (falls nicht vorhanden)
+        run: |
+          if [ -z "$(git tag -l "$PLUGIN_TAG")" ]; then
+            git tag "$PLUGIN_TAG"
+            git push origin "$PLUGIN_TAG"
+            echo "Neues Git-Tag $PLUGIN_TAG erstellt und gepusht."
+          else
+            echo "Git-Tag $PLUGIN_TAG existiert bereits."
+          fi
 
       - name: Build ZIP Archive
         run: |
@@ -38,17 +40,15 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
 
-      - name: Upload ZIP to Server via SCP (mit Passwort)
+      - name: Upload ZIP to Server via SCP
         run: |
           sshpass -p "${{ secrets.SSH_PASS }}" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
 
-      - name: Test SSH Connection (optional)
-        run: |
-          sshpass -p "${{ secrets.SSH_PASS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo SSH-Verbindung erfolgreich"
-
       - name: Upload ZIP to GitHub Release
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.PLUGIN_TAG }}  # Automatisch aus readme.txt extrahiert
           files: ${{ env.PLUGIN_NAME }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
