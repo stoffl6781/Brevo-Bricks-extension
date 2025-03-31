@@ -33,7 +33,7 @@ jobs:
 
       - name: Upload ZIP to Server via SCP (überschreibt vorhandene Datei)
         run: |
-          sshpass -p "${{ secrets.SSH_PASS }}" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+          sshpass -p "2VeNDHR10trSkjCuCYL8" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip purin-repository@repository.purin.at:htdocs/repository.purin.at/packages/
 
       - name: Notify Deployment Success
         run: echo "✅ Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
