@@ -1,4 +1,4 @@
-=== Brevo Bricks extenstion ===
+=== Bricks Brevo integration ===
 Contributors: cpurin
 Tags: API, Synchronisation
 Requires at least: 5.0
