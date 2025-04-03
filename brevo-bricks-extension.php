@@ -1,7 +1,7 @@
 <?php
 /*
-    Plugin Name: Brevo - Bricks extension
-    Plugin URI: purin.at
+    Plugin Name: Bricks Brevo integration
+    Plugin URI: https://www.purin.at
     Version: 1.0.1
     Author: Christoph Purin
     Author URI: www.purin.at
@@ -16,9 +16,9 @@ require 'update/plugin-update-checker.php';
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $MyUpdateChecker = PucFactory::buildUpdateChecker(
-    'https://repository.purin.at?action=get_metadata&slug=brevo-bricks-extension',
+    'https://repository.purin.at?action=get_metadata&slug=bricks-brevo-integration',
     __FILE__,
-    'brevo-bricks-extension'
+    'bricks-brevo-integration'
 );
 
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
