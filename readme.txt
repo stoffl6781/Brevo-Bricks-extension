@@ -1,8 +1,8 @@
 === Bricks Brevo integration ===
 Contributors: cpurin
 Tags: API, Synchronisation
-Requires at least: 5.0
-Tested up to: 6.7
+Requires at least: 6.0
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 1.0.1
 License: GPLv2 or later
@@ -29,7 +29,7 @@ Verwende für die E-Mail Adresse die FeldID "E-Mail".
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.0.0 01.05.2025 =
 * Erste Version des Plugins:
   - API-Synchronisation.
 
