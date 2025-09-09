@@ -1,10 +1,14 @@
 <?php
-/*
-    Plugin Name: Bricks Brevo integration
-    Plugin URI: https://www.purin.at
-    Version: 1.0.1
-    Author: Christoph Purin
-    Author URI: www.purin.at
+/**
+ * Plugin Name: Bricks Brevo integration
+ * Plugin URI: https://www.purin.at
+ * Version: 1.0.1
+ * Author: Christoph Purin
+ * Author URI: www.purin.at
+ *
+ * Requires PHP: 8.2
+ * Requires at least: 6.6
+ * Requires up to: 6.8
 */
 
 /**
