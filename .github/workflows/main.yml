@@ -8,11 +8,14 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: updateserver
+    environment: production
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        
+      - name: Installiere nur Runtime-Abhängigkeiten (ohne dev)
+        run: composer install --no-dev --optimize-autoloader
 
       - name: Setze ZIP-Dateinamen basierend auf Repository-Namen (kleingeschrieben)
         run: echo "PLUGIN_NAME=$(basename $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
@@ -20,12 +23,12 @@ jobs:
       - name: Entferne alte ZIP-Datei (falls vorhanden)
         run: rm -f ${{ env.PLUGIN_NAME }}.zip
 
-      - name: Build ZIP Archive
+      - name: Build ZIP Archive (inkl. Plugin-Ordner im ZIP)
         run: |
-          mkdir -p build
-          rsync -av --progress ./ build/ --exclude .git --exclude .github
+          mkdir -p build/${{ env.PLUGIN_NAME }}
+          rsync -av ./ build/${{ env.PLUGIN_NAME }}/ --exclude .git --exclude .github
           cd build
-          zip -r ../${{ env.PLUGIN_NAME }}.zip .
+          zip -r ../${{ env.PLUGIN_NAME }}.zip ${{ env.PLUGIN_NAME }}
           cd ..
 
       - name: Install sshpass
@@ -33,7 +36,7 @@ jobs:
 
       - name: Upload ZIP to Server via SCP (überschreibt vorhandene Datei)
         run: |
-          sshpass -p "2VeNDHR10trSkjCuCYL8" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip purin-repository@188.245.42.73:htdocs/repository.purin.at/packages/
+          sshpass -p "bETHexJpM0zAFRko88zq" scp -o StrictHostKeyChecking=no $PLUGIN_NAME.zip purin-repository@188.245.42.73:htdocs/repository.purin.at/packages/
 
       - name: Notify Deployment Success
-        run: echo "✅ Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
+        run: echo "Plugin $PLUGIN_NAME erfolgreich hochgeladen!"
